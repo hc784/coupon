@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>대기열 상태</title>
+</head>
+<body>
+    <h1>실시간 대기열 상태</h1>
+    <div id="queueStatus">대기열 상태를 기다리는 중...</div>
+
+    <script>
+        // SSE 엔드포인트에 연결 (Spring Boot 백엔드가 localhost:8080에서 실행 중)
+        const eventSource = new EventSource('/queue/events');
+
+        eventSource.onmessage = function(event) {
+            const queueStatusDiv = document.getElementById('queueStatus');
+            // 이벤트 이름이 "queueUpdate"로 전송된 데이터 표시
+            queueStatusDiv.innerHTML = "대기열 업데이트: " + event.data;
+        };
+
+        eventSource.onerror = function(event) {
+            console.error("SSE 연결 에러", event);
+        };
+    </script>
+</body>
+</html>

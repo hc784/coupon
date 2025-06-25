@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/coupon?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update   # 개발용
+    properties:
+      hibernate:
+        format_sql: true
+
+  redis:
+    host: localhost
+    port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: coupon-consumer
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+coupon:
+  queue-key: "coupon:queue"
+  seq-key:   "coupon:seq"
+  topic: coupon-issue
+  stock-key: "coupon:remaining"           # 남은 수량
+  issued-key-prefix: "coupon:issued:"     # 중복 체크 prefix
+  success-key-prefix: "coupon:success:"   # 발급 성공 prefix
