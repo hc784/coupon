@@ -21,6 +21,7 @@ public class CouponController {
     public ResponseEntity<String> requestCoupon(@RequestParam long userId) {
         if (!queueService.joinQueue(userId))
             return ResponseEntity.badRequest().body("이미 참여 중이거나 발급 완료");
+        
         return ResponseEntity.ok("대기열 등록 – /api/queue/" + userId + " SSE 구독");
     }
 }

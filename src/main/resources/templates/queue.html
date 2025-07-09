@@ -1,26 +1,74 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>대기열 상태</title>
+    <meta charset="UTF-8" />
+    <title>쿠폰 대기열</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 4rem auto; text-align: center; }
+        #status { margin-top: 1.5rem; font-weight: bold; }
+        #position { margin-top: .75rem; font-size: 1.25rem; color: #0a84ff; }
+        button { padding: .6rem 1.4rem; font-size: 1rem; border: none; border-radius: .5rem; background: #0a84ff; color: #fff; cursor: pointer; }
+        button[disabled] { background: #999; cursor: default; }
+    </style>
 </head>
 <body>
-    <h1>실시간 대기열 상태</h1>
-    <div id="queueStatus">대기열 상태를 기다리는 중...</div>
+    <h1>선착순 쿠폰 대기열</h1>
 
-    <script>
-        // SSE 엔드포인트에 연결 (Spring Boot 백엔드가 localhost:8080에서 실행 중)
-        const eventSource = new EventSource('/queue/events');
+    <!-- 사용자 ID는 컨트롤러에서 모델로 주입: model.addAttribute("userId", userId); -->
+    <p th:text="'사용자 ID: ' + ${userId}"></p>
 
-        eventSource.onmessage = function(event) {
-            const queueStatusDiv = document.getElementById('queueStatus');
-            // 이벤트 이름이 "queueUpdate"로 전송된 데이터 표시
-            queueStatusDiv.innerHTML = "대기열 업데이트: " + event.data;
-        };
+    <button id="joinBtn">쿠폰 신청</button>
 
-        eventSource.onerror = function(event) {
-            console.error("SSE 연결 에러", event);
-        };
+    <p id="status"></p>
+    <p id="position"></p>
+
+    <!-- 자바스크립트: Thymeleaf 인라인 사용 -->
+    <script th:inline="javascript">
+        const userId = /*[[${userId}]]*/ 0;   // fallback 0 when SSR 미적용
+
+        async function joinQueue() {
+            // 신청 버튼 비활성화
+            document.getElementById('joinBtn').disabled = true;
+
+            try {
+                const res = await fetch(`/api/coupon?userId=${userId}`, { method: 'POST' });
+                document.getElementById('status').innerText = await res.text();
+
+                if (res.ok) {
+                    pollPosition();
+                } else {
+                    document.getElementById('joinBtn').disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('status').innerText = '서버 오류, 잠시 후 다시 시도하세요';
+                document.getElementById('joinBtn').disabled = false;
+            }
+        }
+
+        async function pollPosition() {
+            try {
+                const res = await fetch(`/api/queue/${userId}`);
+                if (!res.ok) throw new Error('poll failed');
+                const data = await res.json();
+
+                if (data.status === 'DONE') {
+                    document.getElementById('position').innerText = '🎉 발급이 완료되었습니다!';
+                    document.getElementById('status').innerText  = '';
+                    return; // polling 종료
+                }
+
+                document.getElementById('position').innerText = `현재 순위: ${data.position}`;
+                setTimeout(pollPosition, 1000); // 1초 후 재호출
+            } catch (e) {
+                console.error(e);
+                setTimeout(pollPosition, 2000); // 에러 시 2초 후 재시도
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('joinBtn').addEventListener('click', joinQueue);
+        });
     </script>
 </body>
 </html>
