@@ -47,7 +47,6 @@ public class QueueKafkaBridge {
     /** 100 ms마다 선착순 한 명을 Kafka로 전송 */
     @Scheduled(fixedDelay = 100)
     public void popAndSend() {
-    	
         // ① Lua로 재고 확인+차감+큐 pop을 한 번에 실행
         String userIdStr = redis.execute(
             POP_AND_DECR_SCRIPT,
