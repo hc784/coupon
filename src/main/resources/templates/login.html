@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title></title>
+    <link th:href="@{/styles/login.css}" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:class="page">
+    <div th:class="container">
+        <div th:class="left">
+            <div th:class="login">Login</div>
+            <div th:class="eula">CUBOX ID/PW Login</div>
+        </div>
+        <div th:class="right">
+            <div th:class="form">
+                <form th:class="login-form" th:action="@{/login}" method="post">
+                    <label for="email">Email</label>
+                    <input type="email" name="username" id="email">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password">
+                    <input type="submit" id="submit" value="로그인">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
