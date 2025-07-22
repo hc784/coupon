@@ -12,63 +12,57 @@
     </style>
 </head>
 <body>
-    <h1>선착순 쿠폰 대기열</h1>
+	<h1>선착순 쿠폰 대기열</h1>
+	<p th:text="'안녕하세요, ' + ${#authentication.principal.username} + '님!'"></p>
+	
+	<button id="joinBtn">쿠폰 신청</button>
+	
+	<p id="status"></p>
+	<p id="position"></p>
 
-    <!-- 사용자 ID는 컨트롤러에서 모델로 주입: model.addAttribute("userId", userId); -->
-    <p th:text="'사용자 ID: ' + ${userId}"></p>
+<script th:inline="javascript">
+    async function joinQueue() {
+        document.getElementById('joinBtn').disabled = true;
 
-    <button id="joinBtn">쿠폰 신청</button>
+        try {
+            const res = await fetch('/api/coupon', { method: 'POST' });
+            document.getElementById('status').innerText = await res.text();
 
-    <p id="status"></p>
-    <p id="position"></p>
+            if (res.ok) pollPosition();
+            else        document.getElementById('joinBtn').disabled = false;
 
-    <!-- 자바스크립트: Thymeleaf 인라인 사용 -->
-    <script th:inline="javascript">
-        const userId = /*[[${userId}]]*/ 0;   // fallback 0 when SSR 미적용
-
-        async function joinQueue() {
-            // 신청 버튼 비활성화
-            document.getElementById('joinBtn').disabled = true;
-
-            try {
-                const res = await fetch(`/api/coupon?userId=${userId}`, { method: 'POST' });
-                document.getElementById('status').innerText = await res.text();
-
-                if (res.ok) {
-                    pollPosition();
-                } else {
-                    document.getElementById('joinBtn').disabled = false;
-                }
-            } catch (e) {
-                console.error(e);
-                document.getElementById('status').innerText = '서버 오류, 잠시 후 다시 시도하세요';
-                document.getElementById('joinBtn').disabled = false;
-            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('status').innerText = '서버 오류, 잠시 후 다시 시도하세요';
+            document.getElementById('joinBtn').disabled = false;
         }
+    }
 
-        async function pollPosition() {
-            try {
-                const res = await fetch(`/api/queue/${userId}`);
-                if (!res.ok) throw new Error('poll failed');
-                const data = await res.json();
+    async function pollPosition() {
+        try {
+            const res  = await fetch('/api/queue');
+            if (!res.ok) throw new Error('poll failed');
+            const data = await res.json();
 
-                if (data.status === 'DONE') {
-                    document.getElementById('position').innerText = '🎉 발급이 완료되었습니다!';
-                    document.getElementById('status').innerText  = '';
-                    return; // polling 종료
-                }
-
-                document.getElementById('position').innerText = `현재 순위: ${data.position}`;
-                setTimeout(pollPosition, 1000); // 1초 후 재호출
-            } catch (e) {
-                console.error(e);
-                setTimeout(pollPosition, 2000); // 에러 시 2초 후 재시도
+            if (data.status === 'DONE') {
+                document.getElementById('position').innerText = '🎉 발급이 완료되었습니다!';
+                document.getElementById('status').innerText  = '';
+                return; // polling 종료
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('joinBtn').addEventListener('click', joinQueue);
-        });
-    </script>
+            document.getElementById('position').innerText = `현재 순위: ${data.position}`;
+            setTimeout(pollPosition, 1000);
+
+        } catch (e) {
+            console.error(e);
+            setTimeout(pollPosition, 2000);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () =>
+        document.getElementById('joinBtn').addEventListener('click', joinQueue)
+    );
+</script>
+
 </body>
 </html>
