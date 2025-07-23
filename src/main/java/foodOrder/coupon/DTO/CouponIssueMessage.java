@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @Data @AllArgsConstructor @NoArgsConstructor
 public class CouponIssueMessage {
     private Long userId;
-    private String eventId;    // “summer-sale-2025” 등
+    private Long typeId;    // 기존 eventId → CouponType PK(id)
 }

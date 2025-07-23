@@ -7,9 +7,15 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import foodOrder.auth.entity.User;
+import foodOrder.auth.repository.UserRepository;
 import foodOrder.coupon.DTO.CouponIssueMessage;
-import foodOrder.coupon.entitiy.Coupon;
+
+import foodOrder.coupon.entitiy.CouponIssue;
+import foodOrder.coupon.entitiy.CouponType;
+import foodOrder.coupon.repository.CouponIssueRepository;
 import foodOrder.coupon.repository.CouponRepository;
+import foodOrder.coupon.repository.CouponTypeRepository;
 import foodOrder.coupon.service.QueueService;
 
 import java.util.Collections;
@@ -18,9 +24,13 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class CouponIssueConsumer {
 
-    private final CouponRepository couponRepo;
     private final StringRedisTemplate redis;
     private final QueueService queueService;
+    
+    private final CouponTypeRepository typeRepo;
+    private final CouponIssueRepository issueRepo;
+    private final UserRepository userRepo;
+
 
     @Value("${coupon.stock-key}") private String stockKey;
 
@@ -53,7 +63,21 @@ public class CouponIssueConsumer {
 
         /* ② 발급 로직 (DB·큐·플래그) */
         try {
-            couponRepo.save(new Coupon(msg.getUserId(), msg.getEventId()));        // DB
+            // ② CouponType 조회
+            CouponType type = typeRepo.findById(msg.getTypeId())
+                .orElseThrow(() -> 
+                    new IllegalArgumentException("Unknown coupon code: " + msg.getTypeId()));
+
+            // ③ User 조회
+            User user = userRepo.findById(msg.getUserId())
+                .orElseThrow(() -> 
+                    new IllegalArgumentException("No such user: " + msg.getUserId()));
+
+            // ④ CouponIssue 생성 (issuedAt, expiresAt 자동 계산)
+            CouponIssue issue = CouponIssue.of(type, user);
+            issueRepo.save(issue);
+            
+            
             queueService.removeFromQueue(msg.getUserId());                         // ZSET 제거
             redis.opsForValue().set("coupon:success:" + msg.getUserId(), "1");     // 성공 플래그
         } catch (Exception e) {
