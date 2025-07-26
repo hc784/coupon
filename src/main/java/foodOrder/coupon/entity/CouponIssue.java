@@ -1,4 +1,4 @@
-package foodOrder.coupon.entitiy;
+package foodOrder.coupon.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

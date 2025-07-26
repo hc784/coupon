@@ -34,6 +34,7 @@ public class QueueService {
 
     /** 현재 순위(1-based). 존재하지 않으면 null */
     public Long currentPosition(long userId, long typeId) {
+    	
         String queueKey = baseQueueKey + ":" + typeId;
         Long rank = redis.opsForZSet().rank(queueKey, String.valueOf(userId));
         return (rank == null) ? null : rank + 1;

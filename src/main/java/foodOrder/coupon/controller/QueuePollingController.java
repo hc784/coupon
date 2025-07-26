@@ -14,12 +14,14 @@ public class QueuePollingController {
 
     private final QueueService queueService;
 
-    @GetMapping("/queue")
+    @GetMapping("/queue/{typeId}")
     public ResponseEntity<QueuePositionResponse> getPosition(
-            @AuthenticationPrincipal CustomUserDetails user) {
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long typeId) {
 
+    	
         long userId = user.getId();
-        Long pos = queueService.currentPosition(userId);
+        Long pos = queueService.currentPosition(userId, typeId);
 
         QueuePositionResponse body = (pos == null)
                 ? QueuePositionResponse.done()
@@ -27,6 +29,7 @@ public class QueuePollingController {
 
         return ResponseEntity.ok(body);
     }
+
 
     public record QueuePositionResponse(String status, Long position) {
         static QueuePositionResponse waiting(Long pos) { return new QueuePositionResponse("WAITING", pos); }

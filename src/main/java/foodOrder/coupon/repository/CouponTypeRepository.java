@@ -3,7 +3,7 @@ package foodOrder.coupon.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import foodOrder.coupon.entitiy.CouponType;
+import foodOrder.coupon.entity.CouponType;
 
 import java.util.Optional;
 

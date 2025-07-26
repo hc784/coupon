@@ -10,9 +10,8 @@ import org.springframework.stereotype.Component;
 import foodOrder.auth.entity.User;
 import foodOrder.auth.repository.UserRepository;
 import foodOrder.coupon.DTO.CouponIssueMessage;
-
-import foodOrder.coupon.entitiy.CouponIssue;
-import foodOrder.coupon.entitiy.CouponType;
+import foodOrder.coupon.entity.CouponIssue;
+import foodOrder.coupon.entity.CouponType;
 import foodOrder.coupon.repository.CouponIssueRepository;
 import foodOrder.coupon.repository.CouponRepository;
 import foodOrder.coupon.repository.CouponTypeRepository;
