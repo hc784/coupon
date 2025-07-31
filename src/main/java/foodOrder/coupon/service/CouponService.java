@@ -1,6 +1,5 @@
 package foodOrder.coupon.service;
 
-import foodOrder.auth.entity.User;
 import foodOrder.coupon.entity.CouponType;
 import foodOrder.coupon.repository.CouponTypeRepository;
 import foodOrder.coupon.exception.*;

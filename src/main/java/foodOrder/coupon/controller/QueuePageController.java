@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import foodOrder.auth.security.CustomUserDetails;
+import foodOrder.auth.entity.Users;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class QueuePageController {
 
     @GetMapping
-    public String queuePage(@AuthenticationPrincipal CustomUserDetails user, Model model) {
+    public String queuePage(@AuthenticationPrincipal Users user, Model model) {
         long userId = user.getId();
         model.addAttribute("userId", userId);
         return "queue"; // resources/templates/queue.html

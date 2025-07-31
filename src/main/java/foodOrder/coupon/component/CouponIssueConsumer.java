@@ -7,8 +7,8 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import foodOrder.auth.entity.User;
-import foodOrder.auth.repository.UserRepository;
+import foodOrder.auth.entity.Users;
+import foodOrder.auth.v1.repository.UsersRepository;
 import foodOrder.coupon.DTO.CouponIssueMessage;
 import foodOrder.coupon.entity.CouponIssue;
 import foodOrder.coupon.entity.CouponType;
@@ -28,7 +28,7 @@ public class CouponIssueConsumer {
     
     private final CouponTypeRepository typeRepo;
     private final CouponIssueRepository issueRepo;
-    private final UserRepository userRepo;
+    private final UsersRepository userRepo;
 
 
     @Value("${coupon.stock-key}") private String stockKey;
@@ -68,7 +68,7 @@ public class CouponIssueConsumer {
                     new IllegalArgumentException("Unknown coupon code: " + msg.getTypeId()));
 
             // ③ User 조회
-            User user = userRepo.findById(msg.getUserId())
+            Users user = userRepo.findById(msg.getUserId())
                 .orElseThrow(() -> 
                     new IllegalArgumentException("No such user: " + msg.getUserId()));
 
