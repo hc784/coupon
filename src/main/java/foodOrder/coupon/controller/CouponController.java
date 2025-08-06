@@ -1,7 +1,9 @@
 package foodOrder.coupon.controller;
 
 
-import foodOrder.auth.entity.Users;
+
+
+import foodOrder.auth.security.CustomUserPrincipal;
 import foodOrder.coupon.entity.CouponType;
 import foodOrder.coupon.repository.CouponTypeRepository;
 import foodOrder.coupon.service.CouponService;
@@ -21,7 +23,7 @@ public class CouponController {
 
     @PostMapping("/{typeId}/request")
     public ResponseEntity<Void> requestCoupon(
-            @AuthenticationPrincipal Users user,
+            @AuthenticationPrincipal CustomUserPrincipal user,
             @PathVariable Long typeId
     ) {
         couponService.requestCoupon(user.getId(), typeId);

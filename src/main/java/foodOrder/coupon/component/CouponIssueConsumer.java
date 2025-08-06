@@ -77,7 +77,7 @@ public class CouponIssueConsumer {
             issueRepo.save(issue);
             
             
-            queueService.removeFromQueue(msg.getUserId());                         // ZSET 제거
+            queueService.removeFromQueue(msg.getUserId(), msg.getTypeId());                         // ZSET 제거
             redis.opsForValue().set("coupon:success:" + msg.getUserId(), "1");     // 성공 플래그
         } catch (Exception e) {
             // ★ 예외 시 재고 복원: Lua 한 번 더 호출

@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import foodOrder.auth.entity.Users;
+import foodOrder.auth.security.CustomUserPrincipal;
 import foodOrder.coupon.service.QueueService;
 @RestController
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class QueuePollingController {
 
     @GetMapping("/queue/{typeId}")
     public ResponseEntity<QueuePositionResponse> getPosition(
-            @AuthenticationPrincipal Users user,
+            @AuthenticationPrincipal CustomUserPrincipal user,
             @PathVariable Long typeId) {
 
     	
